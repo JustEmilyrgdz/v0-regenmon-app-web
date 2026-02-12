@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 
-export type RegenmonType = "green" | "brown" | "yellow"
+export type RegenmonType = "green" | "brown" | "black"
 
 export interface RegenmonData {
   name: string

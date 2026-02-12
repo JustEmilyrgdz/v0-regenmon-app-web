@@ -1,29 +1,27 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import type { RegenmonType } from "@/hooks/use-regenmon"
 
-const TYPES: { id: RegenmonType; label: string; emoji: string; color: string; desc: string }[] = [
+const TYPES: { id: RegenmonType; label: string; image: string; desc: string }[] = [
   {
     id: "green",
     label: "Gota con Gorra",
-    emoji: "🧢",
-    color: "bg-emerald-700",
-    desc: "Gota de petroleo con gorra negra",
+    image: "/regenmon-green.jpg",
+    desc: "Gota de petroleo verde con gorra",
   },
   {
     id: "brown",
     label: "Gota Estudiosa",
-    emoji: "🔍",
-    color: "bg-amber-800",
-    desc: "Gota de petroleo con lentes de aumento",
+    image: "/regenmon-brown.jpg",
+    desc: "Gota de petroleo marron con lentes de estudio",
   },
   {
-    id: "yellow",
-    label: "Gota Tech",
-    emoji: "💻",
-    color: "bg-yellow-600",
-    desc: "Gota de petroleo con lentes de sol y laptop",
+    id: "black",
+    label: "Gota Cool",
+    image: "/regenmon-black.jpg",
+    desc: "Gota de petroleo negra con lentes de sol",
   },
 ]
 
@@ -108,10 +106,14 @@ export function CreateScreen({ onCreate }: CreateScreenProps) {
                       aria-pressed={selectedType === t.id}
                     >
                       <div className="flex flex-col items-center gap-2">
-                        <div
-                          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg ${t.color} flex items-center justify-center`}
-                        >
-                          <span className="text-2xl sm:text-3xl">{t.emoji}</span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 relative pixel-render">
+                          <Image
+                            src={t.image}
+                            alt={t.desc}
+                            fill
+                            className="object-contain pixel-render"
+                            sizes="80px"
+                          />
                         </div>
                         <span className="font-sans text-[8px] sm:text-[10px] text-center leading-relaxed" style={{ color: "hsl(60 20% 90%)" }}>
                           {t.label}
