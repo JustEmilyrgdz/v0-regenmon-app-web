@@ -1,24 +1,21 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import type { RegenmonData } from "@/hooks/use-regenmon"
+import { RegenmonSprite } from "@/components/regenmon-sprite"
 
 const TYPE_CONFIG = {
   green: {
-    image: "/regenmon-green.jpg",
     bg: "from-emerald-900 to-emerald-700",
     border: "hsl(145 60% 35%)",
     label: "Gota con Gorra",
   },
   brown: {
-    image: "/regenmon-brown.jpg",
     bg: "from-amber-900 to-amber-700",
     border: "hsl(35 60% 35%)",
     label: "Gota Estudiosa",
   },
   black: {
-    image: "/regenmon-black.jpg",
     bg: "from-neutral-900 to-neutral-700",
     border: "hsl(0 0% 25%)",
     label: "Gota Cool",
@@ -65,9 +62,7 @@ export function PetScreen({
       {/* Header */}
       <header className="nes-container is-dark flex flex-wrap items-center justify-between gap-2" style={{ margin: 0, borderLeft: "none", borderRight: "none", borderTop: "none" }}>
         <h1 className="font-sans text-xs sm:text-sm flex items-center gap-2" style={{ color: "hsl(60 20% 90%)" }}>
-          <div className="relative w-6 h-6 pixel-render">
-            <Image src={config.image} alt="" fill className="object-contain pixel-render" sizes="24px" />
-          </div>
+          <RegenmonSprite type={regenmon.type} size={28} />
           <span>{"Regenmon"}</span>
         </h1>
         <div className="flex items-center gap-2">
@@ -106,16 +101,7 @@ export function PetScreen({
                   : "animate-float"
               }`}
             >
-              <div className="relative w-32 h-32 sm:w-44 sm:h-44 pixel-render">
-                <Image
-                  src={config.image}
-                  alt={`Regenmon tipo ${config.label}: ${regenmon.name}`}
-                  fill
-                  className="object-contain pixel-render"
-                  sizes="176px"
-                  priority
-                />
-              </div>
+              <RegenmonSprite type={regenmon.type} size={176} />
             </div>
 
             {isSad && (
