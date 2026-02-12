@@ -10,38 +10,38 @@
 
 @layer base {
   :root {
-    --background: 240 20% 10%;
-    --foreground: 60 20% 90%;
-    --card: 240 15% 15%;
-    --card-foreground: 60 20% 90%;
-    --popover: 240 15% 15%;
-    --popover-foreground: 60 20% 90%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 88%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 88%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 88%;
     --primary: 145 60% 45%;
-    --primary-foreground: 240 20% 10%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 35 80% 55%;
-    --secondary-foreground: 240 20% 10%;
-    --muted: 240 10% 20%;
-    --muted-foreground: 60 10% 60%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 50%;
     --accent: 0 70% 55%;
-    --accent-foreground: 60 20% 95%;
+    --accent-foreground: 0 0% 95%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 10% 25%;
-    --input: 240 10% 25%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
     --ring: 145 60% 45%;
     --chart-1: 145 60% 45%;
     --chart-2: 35 80% 55%;
     --chart-3: 0 70% 55%;
-    --chart-4: 240 15% 40%;
+    --chart-4: 0 0% 40%;
     --chart-5: 60 20% 50%;
     --radius: 0px;
-    --sidebar-background: 240 20% 10%;
-    --sidebar-foreground: 60 20% 90%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 88%;
     --sidebar-primary: 145 60% 45%;
-    --sidebar-primary-foreground: 240 20% 10%;
-    --sidebar-accent: 240 10% 20%;
-    --sidebar-accent-foreground: 60 20% 90%;
-    --sidebar-border: 240 10% 25%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 88%;
+    --sidebar-border: 0 0% 18%;
     --sidebar-ring: 145 60% 45%;
   }
 }
@@ -57,24 +57,24 @@
 
 /* NES.css overrides for retro theme */
 .nes-container {
-  background-color: hsl(240 15% 15%) !important;
-  color: hsl(60 20% 90%) !important;
+  background-color: hsl(0 0% 7%) !important;
+  color: hsl(0 0% 88%) !important;
 }
 
 .nes-container.is-dark {
-  background-color: hsl(240 20% 12%) !important;
-  color: hsl(60 20% 90%) !important;
+  background-color: hsl(0 0% 5%) !important;
+  color: hsl(0 0% 88%) !important;
 }
 
 .nes-container.with-title > .title {
-  background-color: hsl(240 20% 10%) !important;
-  color: hsl(60 20% 90%) !important;
+  background-color: hsl(0 0% 0%) !important;
+  color: hsl(0 0% 88%) !important;
 }
 
 .nes-input,
 .nes-textarea {
-  background-color: hsl(240 10% 20%) !important;
-  color: hsl(60 20% 90%) !important;
+  background-color: hsl(0 0% 12%) !important;
+  color: hsl(0 0% 88%) !important;
 }
 
 .nes-progress {
@@ -87,12 +87,12 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(240 20% 10%);
+  background: hsl(0 0% 0%);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(240 10% 25%);
-  border: 2px solid hsl(240 20% 10%);
+  background: hsl(0 0% 18%);
+  border: 2px solid hsl(0 0% 0%);
 }
 
 /* Pixel perfect rendering */

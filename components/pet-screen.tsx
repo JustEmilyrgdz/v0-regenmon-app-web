@@ -61,12 +61,12 @@ export function PetScreen({
     <main className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="nes-container is-dark flex flex-wrap items-center justify-between gap-2" style={{ margin: 0, borderLeft: "none", borderRight: "none", borderTop: "none" }}>
-        <h1 className="font-sans text-xs sm:text-sm flex items-center gap-2" style={{ color: "hsl(60 20% 90%)" }}>
+        <h1 className="font-sans text-xs sm:text-sm flex items-center gap-2" style={{ color: "hsl(0 0% 88%)" }}>
           <RegenmonSprite type={regenmon.type} size={28} />
           <span>{"Regenmon"}</span>
         </h1>
         <div className="flex items-center gap-2">
-          <span className="font-sans text-[8px] sm:text-[10px] px-2 py-1 rounded" style={{ backgroundColor: "hsl(240 10% 20%)", color: "hsl(145 60% 45%)" }}>
+          <span className="font-sans text-[8px] sm:text-[10px] px-2 py-1 rounded" style={{ backgroundColor: "hsl(0 0% 12%)", color: "hsl(145 60% 45%)" }}>
             {"Nv."}{regenmon.level}
           </span>
           <button
@@ -87,7 +87,7 @@ export function PetScreen({
             className={`nes-container is-dark bg-gradient-to-b ${config.bg} flex flex-col items-center gap-4 py-6`}
             style={{ borderColor: config.border }}
           >
-            <p className="font-sans text-sm sm:text-base text-center text-balance" style={{ color: "hsl(60 20% 95%)" }}>
+            <p className="font-sans text-sm sm:text-base text-center text-balance" style={{ color: "hsl(0 0% 95%)" }}>
               {regenmon.name}
             </p>
 
@@ -115,7 +115,7 @@ export function PetScreen({
               </p>
             )}
 
-            <p className="font-sans text-[8px] sm:text-[10px]" style={{ color: "hsl(60 10% 60%)" }}>
+            <p className="font-sans text-[8px] sm:text-[10px]" style={{ color: "hsl(0 0% 50%)" }}>
               {"Creado: "}{new Date(regenmon.createdAt).toLocaleDateString("es-ES")}
             </p>
           </div>
@@ -126,7 +126,7 @@ export function PetScreen({
           {/* Happiness Bar */}
           <div className="nes-container is-dark" style={{ padding: "12px 16px" }}>
             <div className="flex items-center justify-between mb-2">
-              <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(60 20% 90%)" }}>
+              <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(0 0% 88%)" }}>
                 <span>{"💚"}</span>
                 <span>{"Felicidad"}</span>
               </span>
@@ -145,7 +145,7 @@ export function PetScreen({
           {/* Hunger Bar */}
           <div className="nes-container is-dark" style={{ padding: "12px 16px" }}>
             <div className="flex items-center justify-between mb-2">
-              <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(60 20% 90%)" }}>
+              <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(0 0% 88%)" }}>
                 <span>{"🍖"}</span>
                 <span>{"Hambre"}</span>
               </span>
@@ -164,7 +164,7 @@ export function PetScreen({
           {/* XP Bar */}
           <div className="nes-container is-dark" style={{ padding: "12px 16px" }}>
             <div className="flex items-center justify-between mb-2">
-              <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(60 20% 90%)" }}>
+              <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(0 0% 88%)" }}>
                 <span>{"⚡"}</span>
                 <span>{"XP"}</span>
               </span>
@@ -244,7 +244,7 @@ export function PetScreen({
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: "rgba(0,0,0,0.7)" }}>
           <div className="nes-container is-dark with-title w-full max-w-sm">
             <p className="title font-sans text-[10px]">{"Confirmar"}</p>
-            <p className="font-sans text-[10px] sm:text-xs mb-4 leading-relaxed" style={{ color: "hsl(60 20% 90%)" }}>
+            <p className="font-sans text-[10px] sm:text-xs mb-4 leading-relaxed" style={{ color: "hsl(0 0% 88%)" }}>
               {"Estas seguro de reiniciar? Se borraran todos los datos de tu Regenmon."}
             </p>
             <div className="flex gap-3 justify-end">

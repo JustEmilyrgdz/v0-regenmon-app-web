@@ -61,7 +61,7 @@ export function CreateScreen({ onCreate }: CreateScreenProps) {
             <div className="flex flex-col gap-6">
               {/* Name Input */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="regenmon-name" className="font-sans text-xs" style={{ color: "hsl(60 20% 90%)" }}>
+                <label htmlFor="regenmon-name" className="font-sans text-xs" style={{ color: "hsl(0 0% 88%)" }}>
                   {"Nombre (2-15 letras)"}
                 </label>
                 <input
@@ -72,7 +72,7 @@ export function CreateScreen({ onCreate }: CreateScreenProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={15}
-                  style={{ color: "hsl(60 20% 90%)", backgroundColor: "hsl(240 10% 20%)" }}
+                  style={{ color: "hsl(0 0% 88%)", backgroundColor: "hsl(0 0% 12%)" }}
                 />
                 {name.length > 0 && !isNameValid && (
                   <p className="font-sans text-xs" style={{ color: "hsl(0 70% 55%)" }}>
@@ -83,7 +83,7 @@ export function CreateScreen({ onCreate }: CreateScreenProps) {
 
               {/* Type Selection */}
               <div className="flex flex-col gap-3">
-                <p className="font-sans text-xs" style={{ color: "hsl(60 20% 90%)" }}>
+                <p className="font-sans text-xs" style={{ color: "hsl(0 0% 88%)" }}>
                   {"Elige tu tipo:"}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -104,7 +104,7 @@ export function CreateScreen({ onCreate }: CreateScreenProps) {
                     >
                       <div className="flex flex-col items-center gap-2">
                         <RegenmonSprite type={t.id} size={80} />
-                        <span className="font-sans text-[8px] sm:text-[10px] text-center leading-relaxed" style={{ color: "hsl(60 20% 90%)" }}>
+                        <span className="font-sans text-[8px] sm:text-[10px] text-center leading-relaxed" style={{ color: "hsl(0 0% 88%)" }}>
                           {t.label}
                         </span>
                       </div>
