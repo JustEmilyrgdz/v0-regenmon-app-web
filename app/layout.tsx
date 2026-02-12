@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import { Press_Start_2P } from 'next/font/google'
-import { OilTowerBg } from '@/components/oil-tower-bg'
 
 import './globals.css'
 
@@ -35,10 +34,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${pressStart2P.variable} ${pressStart2P.className} font-sans antialiased`}>
-        <OilTowerBg />
-        <div className="relative z-10">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   )
