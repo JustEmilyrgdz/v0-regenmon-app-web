@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 240 20% 10%;
+    --foreground: 60 20% 90%;
+    --card: 240 15% 15%;
+    --card-foreground: 60 20% 90%;
+    --popover: 240 15% 15%;
+    --popover-foreground: 60 20% 90%;
+    --primary: 145 60% 45%;
+    --primary-foreground: 240 20% 10%;
+    --secondary: 35 80% 55%;
+    --secondary-foreground: 240 20% 10%;
+    --muted: 240 10% 20%;
+    --muted-foreground: 60 10% 60%;
+    --accent: 0 70% 55%;
+    --accent-foreground: 60 20% 95%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 10% 25%;
+    --input: 240 10% 25%;
+    --ring: 145 60% 45%;
+    --radius: 0px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* NES.css overrides for retro theme */
+.nes-container {
+  background-color: hsl(240 15% 15%) !important;
+  color: hsl(60 20% 90%) !important;
+}
+
+.nes-container.is-dark {
+  background-color: hsl(240 20% 12%) !important;
+  color: hsl(60 20% 90%) !important;
+}
+
+.nes-container.with-title > .title {
+  background-color: hsl(240 20% 10%) !important;
+  color: hsl(60 20% 90%) !important;
+}
+
+.nes-input,
+.nes-textarea {
+  background-color: hsl(240 10% 20%) !important;
+  color: hsl(60 20% 90%) !important;
+}
+
+.nes-progress {
+  height: 24px !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(240 20% 10%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(240 10% 25%);
+  border: 2px solid hsl(240 20% 10%);
+}
+
+/* Pixel perfect rendering */
+.pixel-render {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}

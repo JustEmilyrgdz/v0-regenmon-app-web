@@ -1,0 +1,49 @@
+"use client"
+
+import { useRegenmon } from "@/hooks/use-regenmon"
+import { CreateScreen } from "@/components/create-screen"
+import { PetScreen } from "@/components/pet-screen"
+
+export default function Page() {
+  const {
+    regenmon,
+    loaded,
+    cooldown,
+    celebrating,
+    createRegenmon,
+    resetRegenmon,
+    feed,
+    play,
+    train,
+  } = useRegenmon()
+
+  // Wait for localStorage to load
+  if (!loaded) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <span className="text-5xl animate-bounce-in">{"🥚"}</span>
+          <p className="font-sans text-xs animate-pulse" style={{ color: "hsl(60 20% 90%)" }}>
+            {"Cargando..."}
+          </p>
+        </div>
+      </main>
+    )
+  }
+
+  if (!regenmon) {
+    return <CreateScreen onCreate={createRegenmon} />
+  }
+
+  return (
+    <PetScreen
+      regenmon={regenmon}
+      cooldown={cooldown}
+      celebrating={celebrating}
+      onFeed={feed}
+      onPlay={play}
+      onTrain={train}
+      onReset={resetRegenmon}
+    />
+  )
+}
