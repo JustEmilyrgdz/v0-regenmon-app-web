@@ -8,6 +8,7 @@ export interface RegenmonData {
   name: string
   type: RegenmonType
   happiness: number
+  hunger: number
   xp: number
   level: number
   createdAt: string
@@ -45,13 +46,17 @@ export function useRegenmon() {
     }
   }, [regenmon, loaded])
 
-  // Happiness decay
+  // Happiness and hunger decay
   useEffect(() => {
     if (!regenmon) return
     const interval = setInterval(() => {
       setRegenmon((prev) => {
         if (!prev) return prev
-        return { ...prev, happiness: Math.max(0, prev.happiness - 1) }
+        return {
+          ...prev,
+          happiness: Math.max(0, prev.happiness - 1),
+          hunger: Math.max(0, prev.hunger - 2),
+        }
       })
     }, HAPPINESS_DECAY_INTERVAL)
     return () => clearInterval(interval)
@@ -62,6 +67,7 @@ export function useRegenmon() {
       name,
       type,
       happiness: 100,
+      hunger: 100,
       xp: 0,
       level: 1,
       createdAt: new Date().toISOString(),
@@ -104,7 +110,8 @@ export function useRegenmon() {
       if (!prev) return prev
       const updated = {
         ...prev,
-        happiness: Math.min(100, prev.happiness + 20),
+        hunger: Math.min(100, prev.hunger + 25),
+        happiness: Math.min(100, prev.happiness + 5),
         xp: prev.xp + 5,
       }
       return checkLevelUp(updated)

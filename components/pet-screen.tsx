@@ -46,7 +46,8 @@ export function PetScreen({
 }: PetScreenProps) {
   const [showConfirm, setShowConfirm] = useState(false)
   const config = TYPE_CONFIG[regenmon.type]
-  const isSad = regenmon.happiness === 0
+  const isHungry = (regenmon.hunger ?? 100) <= 20
+  const isSad = regenmon.happiness === 0 || (regenmon.hunger ?? 100) === 0
   const xpPercent = regenmon.xp
   const happinessPercent = regenmon.happiness
 
@@ -122,6 +123,11 @@ export function PetScreen({
                 {"Tu Regenmon esta triste..."}
               </p>
             )}
+            {isHungry && !isSad && (
+              <p className="font-sans text-[10px] animate-pulse" style={{ color: "hsl(35 80% 55%)" }}>
+                {"Tu Regenmon tiene hambre!"}
+              </p>
+            )}
 
             <p className="font-sans text-[8px] sm:text-[10px]" style={{ color: "hsl(60 10% 60%)" }}>
               {"Creado: "}{new Date(regenmon.createdAt).toLocaleDateString("es-ES")}
@@ -147,6 +153,25 @@ export function PetScreen({
               value={happinessPercent}
               max={100}
               aria-label={`Felicidad: ${happinessPercent} de 100`}
+            />
+          </div>
+
+          {/* Hunger Bar */}
+          <div className="nes-container is-dark" style={{ padding: "12px 16px" }}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(60 20% 90%)" }}>
+                <span>{"🍖"}</span>
+                <span>{"Hambre"}</span>
+              </span>
+              <span className="font-sans text-[8px] sm:text-[10px]" style={{ color: "hsl(0 70% 55%)" }}>
+                {regenmon.hunger ?? 100}{"/100"}
+              </span>
+            </div>
+            <progress
+              className="nes-progress is-error"
+              value={regenmon.hunger ?? 100}
+              max={100}
+              aria-label={`Hambre: ${regenmon.hunger ?? 100} de 100`}
             />
           </div>
 
