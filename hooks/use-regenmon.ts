@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useCallback, useRef } from "react"
 
 export type RegenmonType = "green" | "brown" | "black"
@@ -47,8 +45,9 @@ export function useRegenmon() {
   }, [regenmon, loaded])
 
   // Happiness and hunger decay
+  const isAlive = regenmon !== null
   useEffect(() => {
-    if (!regenmon) return
+    if (!isAlive) return
     const interval = setInterval(() => {
       setRegenmon((prev) => {
         if (!prev) return prev
@@ -60,7 +59,7 @@ export function useRegenmon() {
       })
     }, HAPPINESS_DECAY_INTERVAL)
     return () => clearInterval(interval)
-  }, [regenmon !== null])
+  }, [isAlive])
 
   const createRegenmon = useCallback((name: string, type: RegenmonType) => {
     const newRegenmon: RegenmonData = {

@@ -1,3 +1,5 @@
+@import url("https://unpkg.com/nes.css@2.3.0/css/nes.min.css");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -29,7 +31,20 @@
     --border: 240 10% 25%;
     --input: 240 10% 25%;
     --ring: 145 60% 45%;
+    --chart-1: 145 60% 45%;
+    --chart-2: 35 80% 55%;
+    --chart-3: 0 70% 55%;
+    --chart-4: 240 15% 40%;
+    --chart-5: 60 20% 50%;
     --radius: 0px;
+    --sidebar-background: 240 20% 10%;
+    --sidebar-foreground: 60 20% 90%;
+    --sidebar-primary: 145 60% 45%;
+    --sidebar-primary-foreground: 240 20% 10%;
+    --sidebar-accent: 240 10% 20%;
+    --sidebar-accent-foreground: 60 20% 90%;
+    --sidebar-border: 240 10% 25%;
+    --sidebar-ring: 145 60% 45%;
   }
 }
 

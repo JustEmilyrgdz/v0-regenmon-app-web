@@ -27,12 +27,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <head>
-        <link
-          href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css"
-          rel="stylesheet"
-        />
-      </head>
       <body className={`${pressStart2P.variable} font-sans antialiased`}>
         {children}
       </body>
