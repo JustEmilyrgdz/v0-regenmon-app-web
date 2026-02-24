@@ -1,26 +1,33 @@
 "use client"
 
+import { usePrivy } from "@privy-io/react-auth"
 import { useRegenmon } from "@/hooks/use-regenmon"
 import { CreateScreen } from "@/components/create-screen"
 import { PetScreen } from "@/components/pet-screen"
 import { OilTowerBg } from "@/components/oil-tower-bg"
 
 export default function Page() {
+  const { user, authenticated, login, logout, ready } = usePrivy()
+  const privyUserId = authenticated && user ? user.id : null
+
   const {
     regenmon,
     loaded,
     cooldown,
     celebrating,
+    oilFloats,
     createRegenmon,
     resetRegenmon,
     feed,
     play,
     train,
     boostHappiness,
-  } = useRegenmon()
+    injectMaintenance,
+    earnOilFromChat,
+    showOilFloat,
+  } = useRegenmon(privyUserId)
 
-  // Wait for localStorage to load
-  if (!loaded) {
+  if (!ready || !loaded) {
     return (
       <>
         <OilTowerBg />
@@ -41,7 +48,11 @@ export default function Page() {
       <>
         <OilTowerBg />
         <div className="relative z-10">
-          <CreateScreen onCreate={createRegenmon} />
+          <CreateScreen
+            onCreate={createRegenmon}
+            authenticated={authenticated}
+            onLogin={login}
+          />
         </div>
       </>
     )
@@ -55,11 +66,19 @@ export default function Page() {
           regenmon={regenmon}
           cooldown={cooldown}
           celebrating={celebrating}
+          oilFloats={oilFloats}
+          authenticated={authenticated}
+          userEmail={user?.email?.address || null}
+          onLogin={login}
+          onLogout={logout}
           onFeed={feed}
           onPlay={play}
           onTrain={train}
           onReset={resetRegenmon}
           onStatChange={boostHappiness}
+          onInjectMaintenance={injectMaintenance}
+          onEarnOilFromChat={earnOilFromChat}
+          onShowOilFloat={showOilFloat}
         />
       </div>
     </>

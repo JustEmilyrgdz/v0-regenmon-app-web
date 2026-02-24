@@ -27,24 +27,42 @@ interface PetScreenProps {
   regenmon: RegenmonData
   cooldown: boolean
   celebrating: boolean
+  oilFloats: Array<{ id: number; text: string; color: string }>
+  authenticated: boolean
+  userEmail: string | null
+  onLogin: () => void
+  onLogout: () => void
   onFeed: () => void
   onPlay: () => void
   onTrain: () => void
   onReset: () => void
   onStatChange: (delta: number) => void
+  onInjectMaintenance: () => boolean
+  onEarnOilFromChat: () => void
+  onShowOilFloat: (text: string, color: string) => void
 }
 
 export function PetScreen({
   regenmon,
   cooldown,
   celebrating,
+  oilFloats,
+  authenticated,
+  userEmail,
+  onLogin,
+  onLogout,
   onFeed,
   onPlay,
   onTrain,
   onReset,
   onStatChange,
+  onInjectMaintenance,
+  onEarnOilFromChat,
+  onShowOilFloat,
 }: PetScreenProps) {
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showLog, setShowLog] = useState(false)
+  const [maintenanceError, setMaintenanceError] = useState(false)
   const config = TYPE_CONFIG[regenmon.type]
   const isHungry = (regenmon.hunger ?? 100) <= 20
   const isSad = regenmon.happiness === 0 || (regenmon.hunger ?? 100) === 0
@@ -60,22 +78,59 @@ export function PetScreen({
     onReset()
   }
 
+  function handleMaintenance() {
+    const success = onInjectMaintenance()
+    if (!success) {
+      setMaintenanceError(true)
+      setTimeout(() => setMaintenanceError(false), 2000)
+    }
+  }
+
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col" style={{ backgroundColor: "#0a0a0a" }}>
       {/* Header */}
-      <header className="nes-container is-dark flex flex-wrap items-center justify-between gap-2" style={{ margin: 0, borderLeft: "none", borderRight: "none", borderTop: "none" }}>
+      <header className="nes-container is-dark flex flex-wrap items-center justify-between gap-2" style={{ margin: 0, borderLeft: "none", borderRight: "none", borderTop: "none", backgroundColor: "#0a0a0a" }}>
         <h1 className="font-sans text-xs sm:text-sm flex items-center gap-2" style={{ color: "hsl(0 0% 88%)" }}>
           <RegenmonSprite type={regenmon.type} size={28} />
           <span>{"Regenmon"}</span>
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Oil Balance */}
+          <span className="font-sans text-[8px] sm:text-[10px] px-2 py-1 rounded" style={{ backgroundColor: "hsl(0 0% 12%)", color: "#ff8c00" }}>
+            {authenticated ? `🛢️ ${regenmon.oil ?? 0} $OIL` : "🛢️ — $OIL"}
+          </span>
           <span className="font-sans text-[8px] sm:text-[10px] px-2 py-1 rounded" style={{ backgroundColor: "hsl(0 0% 12%)", color: "hsl(145 60% 45%)" }}>
             {"Nv."}{regenmon.level}
           </span>
+          {authenticated && userEmail && (
+            <span className="font-sans text-[8px] sm:text-[10px] truncate max-w-[120px]" style={{ color: "hsl(0 0% 60%)" }}>
+              {userEmail}
+            </span>
+          )}
+          {authenticated ? (
+            <button
+              type="button"
+              className="nes-btn font-sans text-[8px] sm:text-[10px]"
+              onClick={onLogout}
+              style={{ padding: "2px 8px" }}
+            >
+              {"Salir"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="nes-btn is-warning font-sans text-[8px] sm:text-[10px]"
+              onClick={onLogin}
+              style={{ padding: "2px 8px" }}
+            >
+              {"Iniciar Operaciones"}
+            </button>
+          )}
           <button
             type="button"
             className="nes-btn is-error font-sans text-[8px] sm:text-[10px]"
             onClick={handleReset}
+            style={{ padding: "2px 8px" }}
           >
             {"Reiniciar"}
           </button>
@@ -94,7 +149,6 @@ export function PetScreen({
               {regenmon.name}
             </p>
 
-            {/* Pet Avatar */}
             <div
               className={`transition-all duration-300 ${
                 celebrating
@@ -126,41 +180,41 @@ export function PetScreen({
 
         {/* Stats */}
         <div className="w-full max-w-md flex flex-col gap-4">
-          {/* Happiness Bar */}
+          {/* Rendimiento (was Happiness) */}
           <div className="nes-container is-dark" style={{ padding: "12px 16px" }}>
             <div className="flex items-center justify-between mb-2">
               <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(0 0% 88%)" }}>
-                <span>{"💚"}</span>
-                <span>{"Felicidad"}</span>
+                <span>{"⚙️"}</span>
+                <span>{"Rendimiento"}</span>
               </span>
-              <span className="font-sans text-[8px] sm:text-[10px]" style={{ color: "hsl(145 60% 45%)" }}>
+              <span className="font-sans text-[8px] sm:text-[10px]" style={{ color: "#ff8c00" }}>
                 {happinessPercent}{"/100"}
               </span>
             </div>
             <progress
-              className="nes-progress is-success"
+              className="nes-progress is-warning"
               value={happinessPercent}
               max={100}
-              aria-label={`Felicidad: ${happinessPercent} de 100`}
+              aria-label={`Rendimiento: ${happinessPercent} de 100`}
             />
           </div>
 
-          {/* Hunger Bar */}
+          {/* Presión de Mantenimiento (was Hunger) */}
           <div className="nes-container is-dark" style={{ padding: "12px 16px" }}>
             <div className="flex items-center justify-between mb-2">
               <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(0 0% 88%)" }}>
-                <span>{"🍖"}</span>
-                <span>{"Hambre"}</span>
+                <span>{"🛢️"}</span>
+                <span>{"Presión de Mantenimiento"}</span>
               </span>
-              <span className="font-sans text-[8px] sm:text-[10px]" style={{ color: "hsl(0 70% 55%)" }}>
+              <span className="font-sans text-[8px] sm:text-[10px]" style={{ color: "#22c55e" }}>
                 {regenmon.hunger ?? 100}{"/100"}
               </span>
             </div>
             <progress
-              className="nes-progress is-error"
+              className="nes-progress is-success"
               value={regenmon.hunger ?? 100}
               max={100}
-              aria-label={`Hambre: ${regenmon.hunger ?? 100} de 100`}
+              aria-label={`Presión: ${regenmon.hunger ?? 100} de 100`}
             />
           </div>
 
@@ -185,7 +239,7 @@ export function PetScreen({
         </div>
 
         {/* Action Buttons */}
-        <div className="w-full max-w-md grid grid-cols-3 gap-3">
+        <div className="w-full max-w-md grid grid-cols-2 sm:grid-cols-4 gap-3">
           <button
             type="button"
             className={`nes-btn font-sans text-[8px] sm:text-[10px] ${cooldown ? "is-disabled" : "is-success"}`}
@@ -219,21 +273,89 @@ export function PetScreen({
               <span>{"Entrenar"}</span>
             </span>
           </button>
+          {/* Maintenance Button */}
+          <div className="relative">
+            <button
+              type="button"
+              className={`nes-btn font-sans text-[8px] sm:text-[10px] w-full ${cooldown ? "is-disabled" : ""}`}
+              disabled={cooldown}
+              onClick={handleMaintenance}
+              style={!cooldown ? { backgroundColor: "#ff8c00", color: "#000" } : {}}
+            >
+              <span className="flex flex-col items-center gap-1">
+                <span className="text-lg sm:text-xl">{"⛽"}</span>
+                <span>{"Inyectar"}</span>
+                <span className="text-[7px]" style={{ color: cooldown ? undefined : "#0a0a0a" }}>{"10 $OIL"}</span>
+              </span>
+            </button>
+            {maintenanceError && (
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-1 rounded text-[8px] font-sans z-50" style={{ backgroundColor: "#ff4444", color: "#fff" }}>
+                {"Fondos insuficientes!"}
+              </div>
+            )}
+          </div>
         </div>
 
         {cooldown && (
-          <p className="font-sans text-[8px] sm:text-[10px] animate-pulse" style={{ color: "hsl(35 80% 55%)" }}>
+          <p className="font-sans text-[8px] sm:text-[10px] animate-pulse" style={{ color: "#ff8c00" }}>
             {"Esperando cooldown..."}
           </p>
         )}
 
+        {/* Operation Log */}
+        {regenmon.operationLog && regenmon.operationLog.length > 0 && (
+          <div className="w-full max-w-md">
+            <button
+              type="button"
+              className="font-sans text-[8px] sm:text-[10px] w-full text-left px-3 py-2"
+              style={{ color: "#ff8c00", backgroundColor: "hsl(0 0% 8%)", border: "2px solid hsl(0 0% 18%)" }}
+              onClick={() => setShowLog(!showLog)}
+            >
+              {showLog ? "▼" : "▶"} {"Registro de Operaciones ("}{regenmon.operationLog.length}{")"}
+            </button>
+            {showLog && (
+              <div className="nes-container is-dark" style={{ padding: "8px 12px", maxHeight: "150px", overflowY: "auto" }}>
+                {regenmon.operationLog.slice().reverse().map((entry, i) => (
+                  <div key={i} className="flex justify-between font-sans text-[7px] py-1" style={{ borderBottom: "1px solid hsl(0 0% 15%)" }}>
+                    <span style={{ color: "hsl(0 0% 60%)" }}>{new Date(entry.timestamp).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</span>
+                    <span style={{ color: "hsl(0 0% 80%)" }}>{entry.action}</span>
+                    <span style={{ color: entry.oilDelta >= 0 ? "#22c55e" : "#ff4444" }}>
+                      {entry.oilDelta >= 0 ? "+" : ""}{entry.oilDelta} 🛢️
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Chat Section */}
-        <RegenmonChat regenmon={regenmon} onStatChange={onStatChange} />
+        <RegenmonChat
+          regenmon={regenmon}
+          onStatChange={onStatChange}
+          onEarnOilFromChat={onEarnOilFromChat}
+          onShowOilFloat={onShowOilFloat}
+          onMaintenanceMessage={null}
+        />
+
+        {/* Oil float effects */}
+        {oilFloats.map((float) => (
+          <div
+            key={float.id}
+            className="fixed top-1/3 left-1/2 -translate-x-1/2 pointer-events-none z-50 font-sans text-sm font-bold"
+            style={{
+              color: float.color,
+              animation: "floatUp 2s ease-out forwards",
+            }}
+          >
+            {float.text}
+          </div>
+        ))}
 
         {celebrating && (
           <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-            <div className="nes-container is-dark is-rounded animate-bounce-in text-center" style={{ borderColor: "hsl(145 60% 45%)" }}>
-              <p className="font-sans text-sm sm:text-base" style={{ color: "hsl(145 60% 45%)" }}>
+            <div className="nes-container is-dark is-rounded animate-bounce-in text-center" style={{ borderColor: "#ff8c00" }}>
+              <p className="font-sans text-sm sm:text-base" style={{ color: "#ff8c00" }}>
                 {"Nivel Up!"}
               </p>
               <p className="font-sans text-2xl sm:text-4xl mt-2">{"🎉🛢️🎉"}</p>

@@ -24,9 +24,11 @@ const TYPES: { id: RegenmonType; label: string; desc: string }[] = [
 
 interface CreateScreenProps {
   onCreate: (name: string, type: RegenmonType) => void
+  authenticated: boolean
+  onLogin: () => void
 }
 
-export function CreateScreen({ onCreate }: CreateScreenProps) {
+export function CreateScreen({ onCreate, authenticated, onLogin }: CreateScreenProps) {
   const [name, setName] = useState("")
   const [selectedType, setSelectedType] = useState<RegenmonType | null>(null)
   const [hatching, setHatching] = useState(false)
@@ -43,23 +45,37 @@ export function CreateScreen({ onCreate }: CreateScreenProps) {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
+    <main className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#0a0a0a" }}>
       <div className="w-full max-w-lg">
         <div className="nes-container is-dark with-title">
           <p className="title font-sans text-xs sm:text-sm">{"Crea tu Regenmon"}</p>
+
+          {!authenticated && (
+            <div className="mb-4 text-center">
+              <button
+                type="button"
+                className="nes-btn is-warning font-sans text-[10px] sm:text-xs"
+                onClick={onLogin}
+              >
+                {"🛢️ Iniciar Operaciones"}
+              </button>
+              <p className="font-sans text-[8px] mt-2" style={{ color: "hsl(0 0% 50%)" }}>
+                {"Inicia sesión para guardar tu progreso"}
+              </p>
+            </div>
+          )}
 
           {hatching ? (
             <div className="flex flex-col items-center gap-6 py-8">
               <span className="text-6xl sm:text-8xl animate-bounce-in" role="img" aria-label="Huevo eclosionando">
                 {"🥚"}
               </span>
-              <p className="font-sans text-xs sm:text-sm text-center animate-pulse" style={{ color: "hsl(145 60% 45%)" }}>
+              <p className="font-sans text-xs sm:text-sm text-center animate-pulse" style={{ color: "#ff8c00" }}>
                 {"Eclosionando..."}
               </p>
             </div>
           ) : (
             <div className="flex flex-col gap-6">
-              {/* Name Input */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="regenmon-name" className="font-sans text-xs" style={{ color: "hsl(0 0% 88%)" }}>
                   {"Nombre (2-15 letras)"}
@@ -81,7 +97,6 @@ export function CreateScreen({ onCreate }: CreateScreenProps) {
                 )}
               </div>
 
-              {/* Type Selection */}
               <div className="flex flex-col gap-3">
                 <p className="font-sans text-xs" style={{ color: "hsl(0 0% 88%)" }}>
                   {"Elige tu tipo:"}
@@ -98,7 +113,7 @@ export function CreateScreen({ onCreate }: CreateScreenProps) {
                           : "opacity-70 hover:opacity-100"
                       }`}
                       style={{
-                        borderColor: selectedType === t.id ? "hsl(145 60% 45%)" : undefined,
+                        borderColor: selectedType === t.id ? "#ff8c00" : undefined,
                       }}
                       aria-pressed={selectedType === t.id}
                     >
@@ -113,11 +128,10 @@ export function CreateScreen({ onCreate }: CreateScreenProps) {
                 </div>
               </div>
 
-              {/* Create Button */}
               <button
                 type="button"
                 className={`nes-btn font-sans text-xs sm:text-sm w-full ${
-                  canCreate ? "is-success" : ""
+                  canCreate ? "is-warning" : ""
                 }`}
                 disabled={!canCreate}
                 onClick={handleCreate}

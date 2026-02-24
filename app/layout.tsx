@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Press_Start_2P } from 'next/font/google'
+import { RegenmonPrivyProvider } from '@/components/privy-provider'
 
 import './globals.css'
 
@@ -34,7 +35,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`${pressStart2P.variable} ${pressStart2P.className} font-sans antialiased`}>
-        {children}
+        <RegenmonPrivyProvider>
+          {children}
+        </RegenmonPrivyProvider>
       </body>
     </html>
   )

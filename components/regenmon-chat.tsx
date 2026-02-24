@@ -12,6 +12,9 @@ const MAX_MESSAGES = 20
 interface RegenmonChatProps {
   regenmon: RegenmonData
   onStatChange: (happinessDelta: number) => void
+  onEarnOilFromChat: () => void
+  onShowOilFloat: (text: string, color: string) => void
+  onMaintenanceMessage: string | null
 }
 
 function getTextFromParts(parts: Array<{ type: string; text?: string }>): string {
@@ -21,7 +24,7 @@ function getTextFromParts(parts: Array<{ type: string; text?: string }>): string
     .join("")
 }
 
-export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
+export function RegenmonChat({ regenmon, onStatChange, onEarnOilFromChat, onShowOilFloat }: RegenmonChatProps) {
   const [input, setInput] = useState("")
   const [memories, setMemories] = useState<string[]>([])
   const [statFloats, setStatFloats] = useState<Array<{ id: number; text: string; color: string }>>([])
@@ -31,21 +34,16 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
   const regenmonRef = useRef(regenmon)
   const memoriesRef = useRef(memories)
 
-  // Keep refs in sync
   useEffect(() => { regenmonRef.current = regenmon }, [regenmon])
   useEffect(() => { memoriesRef.current = memories }, [memories])
 
-  // Load memories from localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem(MEMORIES_STORAGE_KEY)
       if (saved) setMemories(JSON.parse(saved))
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
   }, [])
 
-  // Save memories
   useEffect(() => {
     if (memories.length > 0) {
       localStorage.setItem(MEMORIES_STORAGE_KEY, JSON.stringify(memories))
@@ -72,7 +70,6 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
 
   const isLoading = status === "streaming" || status === "submitted"
 
-  // Show stat float effect
   const showStatFloat = useCallback((text: string, color: string) => {
     const id = floatIdRef.current++
     setStatFloats((prev) => [...prev, { id, text, color }])
@@ -81,7 +78,6 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
     }, 2000)
   }, [])
 
-  // Detect memories from user messages
   const detectMemories = useCallback((text: string) => {
     const lowerText = text.toLowerCase()
     const patterns = [
@@ -105,40 +101,35 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
     }
   }, [])
 
-  // Save chat and handle stat changes on new messages
   useEffect(() => {
     if (messages.length > messageCountRef.current) {
       const newCount = messages.length
-      const diff = newCount - messageCountRef.current
 
-      // Save to localStorage (keep only last MAX_MESSAGES)
       const toSave = messages.slice(-MAX_MESSAGES)
       localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(toSave))
 
-      // Check new messages for stat effects
       for (let i = messageCountRef.current; i < newCount; i++) {
         const msg = messages[i]
         if (msg.role === "user") {
-          // Each user message: +5 happiness
           onStatChange(5)
-          showStatFloat("+5 Felicidad", "hsl(145 60% 45%)")
+          showStatFloat("+5 Rendimiento", "#ff8c00")
 
-          // Detect memories
+          // Oil mining from chat
+          onEarnOilFromChat()
+
           const text = getTextFromParts(msg.parts as Array<{ type: string; text?: string }>)
           detectMemories(text)
         }
       }
 
-      // If conversation has 5+ consecutive messages, extra penalty
-      if (newCount > 10 && diff > 0) {
-        showStatFloat("-5 Energia extra", "hsl(0 70% 55%)")
+      if (newCount > 10) {
+        showStatFloat("-5 Energía extra", "hsl(0 70% 55%)")
       }
 
       messageCountRef.current = newCount
     }
-  }, [messages, onStatChange, showStatFloat, detectMemories])
+  }, [messages, onStatChange, showStatFloat, detectMemories, onEarnOilFromChat])
 
-  // Auto scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -154,21 +145,19 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
 
   return (
     <div className="w-full max-w-md flex flex-col">
-      {/* Header */}
       <div className="nes-container is-dark flex items-center justify-between" style={{ padding: "8px 12px", marginBottom: 0 }}>
         <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(0 0% 88%)" }}>
           {"💬 Chat"}
         </span>
         <div className="flex items-center gap-2">
           {memories.length > 0 && (
-            <span className="font-sans text-[8px]" style={{ color: "hsl(35 80% 55%)" }}>
+            <span className="font-sans text-[8px]" style={{ color: "#ff8c00" }}>
               {"🧠 "}{memories.length}{" memorias"}
             </span>
           )}
         </div>
       </div>
 
-      {/* Messages */}
       <div
         ref={scrollRef}
         className="nes-container is-dark flex flex-col gap-3 overflow-y-auto"
@@ -198,8 +187,8 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
                 className="nes-container is-rounded max-w-[85%]"
                 style={{
                   padding: "8px 12px",
-                  backgroundColor: isUser ? "hsl(145 60% 25%)" : "hsl(0 0% 15%)",
-                  borderColor: isUser ? "hsl(145 60% 35%)" : "hsl(0 0% 25%)",
+                  backgroundColor: isUser ? "hsl(30 80% 20%)" : "hsl(0 0% 15%)",
+                  borderColor: isUser ? "#ff8c00" : "hsl(0 0% 25%)",
                   color: "hsl(0 0% 88%)",
                 }}
               >
@@ -211,7 +200,6 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
           )
         })}
 
-        {/* Typing indicator */}
         {isLoading && (
           <div className="flex justify-start animate-bounce-in">
             <div
@@ -222,7 +210,7 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
                 borderColor: "hsl(0 0% 25%)",
               }}
             >
-              <span className="font-sans text-[10px] animate-pulse" style={{ color: "hsl(35 80% 55%)" }}>
+              <span className="font-sans text-[10px] animate-pulse" style={{ color: "#ff8c00" }}>
                 {"..."}
               </span>
             </div>
@@ -230,7 +218,6 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
         )}
       </div>
 
-      {/* Input */}
       <form onSubmit={handleSubmit}>
         <div className="nes-container is-dark flex items-center gap-2" style={{ padding: "8px 12px", borderTop: "none" }}>
           <input
@@ -249,7 +236,7 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
           />
           <button
             type="submit"
-            className={`nes-btn font-sans text-[8px] ${isLoading ? "is-disabled" : "is-primary"}`}
+            className={`nes-btn font-sans text-[8px] ${isLoading ? "is-disabled" : "is-warning"}`}
             disabled={isLoading}
           >
             {"Enviar"}
@@ -257,7 +244,6 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
         </div>
       </form>
 
-      {/* Stat float effects */}
       {statFloats.map((float) => (
         <div
           key={float.id}
