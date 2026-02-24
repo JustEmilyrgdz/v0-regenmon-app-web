@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Press_Start_2P } from 'next/font/google'
+import { PrivyProvider } from '@/components/privy-provider'
 
 import './globals.css'
 
@@ -33,8 +34,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${pressStart2P.variable} ${pressStart2P.className} font-sans antialiased`}>
-        {children}
+      <body className={`${pressStart2P.variable} ${pressStart2P.className} font-sans antialiased`} suppressHydrationWarning>
+        <PrivyProvider>
+          {children}
+        </PrivyProvider>
       </body>
     </html>
   )

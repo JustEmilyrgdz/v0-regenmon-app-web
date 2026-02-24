@@ -1,11 +1,16 @@
 "use client"
 
+import { usePrivy } from "@privy-io/react-auth"
 import { useRegenmon } from "@/hooks/use-regenmon"
+import { useCoins } from "@/hooks/use-coins"
 import { CreateScreen } from "@/components/create-screen"
 import { PetScreen } from "@/components/pet-screen"
 import { OilTowerBg } from "@/components/oil-tower-bg"
 
 export default function Page() {
+  const { ready, authenticated, user, login, logout } = usePrivy()
+  const userId = user?.email?.address || user?.google?.email || null
+
   const {
     regenmon,
     loaded,
@@ -19,8 +24,16 @@ export default function Page() {
     boostHappiness,
   } = useRegenmon()
 
-  // Wait for localStorage to load
-  if (!loaded) {
+  const {
+    coins,
+    history,
+    loaded: coinsLoaded,
+    spendCoins,
+    tryChatReward,
+  } = useCoins(userId)
+
+  // Wait for Privy + localStorage to load
+  if (!ready || !loaded || !coinsLoaded) {
     return (
       <>
         <OilTowerBg />
@@ -60,6 +73,14 @@ export default function Page() {
           onTrain={train}
           onReset={resetRegenmon}
           onStatChange={boostHappiness}
+          authenticated={authenticated}
+          userEmail={userId}
+          coins={coins}
+          history={history}
+          onLogin={login}
+          onLogout={logout}
+          onSpendCoins={spendCoins}
+          onChatReward={tryChatReward}
         />
       </div>
     </>
