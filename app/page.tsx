@@ -25,6 +25,7 @@ export default function Page() {
     injectMaintenance,
     earnOilFromChat,
     showOilFloat,
+    certify,
   } = useRegenmon(privyUserId)
 
   if (!ready || !loaded) {
@@ -79,6 +80,7 @@ export default function Page() {
           onInjectMaintenance={injectMaintenance}
           onEarnOilFromChat={earnOilFromChat}
           onShowOilFloat={showOilFloat}
+          onCertify={certify}
         />
       </div>
     </>

@@ -4,6 +4,7 @@ import { useState } from "react"
 import type { RegenmonData } from "@/hooks/use-regenmon"
 import { RegenmonSprite } from "@/components/regenmon-sprite"
 import { RegenmonChat } from "@/components/regenmon-chat"
+import { TrainingScreen } from "@/components/training-screen"
 
 const TYPE_CONFIG = {
   green: {
@@ -40,6 +41,7 @@ interface PetScreenProps {
   onInjectMaintenance: () => boolean
   onEarnOilFromChat: () => void
   onShowOilFloat: (text: string, color: string) => void
+  onCertify: (xp: number, oil: number) => void
 }
 
 export function PetScreen({
@@ -59,8 +61,10 @@ export function PetScreen({
   onInjectMaintenance,
   onEarnOilFromChat,
   onShowOilFloat,
+  onCertify,
 }: PetScreenProps) {
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showTraining, setShowTraining] = useState(false)
   const [showLog, setShowLog] = useState(false)
   const [maintenanceError, setMaintenanceError] = useState(false)
   const config = TYPE_CONFIG[regenmon.type]
@@ -293,6 +297,24 @@ export function PetScreen({
           </button>
         </div>
 
+        {/* Certificación Técnica Button */}
+        <div className="w-full max-w-md">
+          <button
+            type="button"
+            className="w-full font-sans text-[8px] sm:text-[10px] py-3 px-4 flex items-center justify-center gap-2"
+            onClick={() => setShowTraining(true)}
+            style={{
+              backgroundColor: "#0a0a0a",
+              color: "#ff8c00",
+              border: "3px solid #ff8c00",
+              cursor: "pointer",
+            }}
+          >
+            <span className="text-base">📋</span>
+            <span>Certificación Técnica</span>
+          </button>
+        </div>
+
         {cooldown && (
           <p className="font-sans text-[8px] sm:text-[10px] animate-pulse" style={{ color: "#ff8c00" }}>
             {"Esperando cooldown..."}
@@ -368,6 +390,14 @@ export function PetScreen({
           </div>
         )}
       </div>
+
+      {/* Training Screen */}
+      {showTraining && (
+        <TrainingScreen
+          onComplete={(xp, oil) => onCertify(xp, oil)}
+          onClose={() => setShowTraining(false)}
+        />
+      )}
 
       {/* Confirm Reset Dialog */}
       {showConfirm && (

@@ -220,6 +220,22 @@ export function useRegenmon(privyUserId?: string | null) {
     return true
   }, [cooldown, regenmon, startCooldown, showOilFloat])
 
+  // Certification: award XP and OIL from technical evaluation
+  const certify = useCallback((xp: number, oil: number) => {
+    setRegenmon((prev) => {
+      if (!prev) return prev
+      const log = [...(prev.operationLog || []), { timestamp: new Date().toISOString(), action: "📋 Certificación Técnica", oilDelta: oil }].slice(-10)
+      const updated = {
+        ...prev,
+        xp: prev.xp + xp,
+        oil: prev.oil + oil,
+        operationLog: log,
+      }
+      return checkLevelUp(updated)
+    })
+    if (oil > 0) showOilFloat(`+${oil} 🛢️`, "#ff8c00")
+  }, [checkLevelUp, showOilFloat])
+
   // Chat mining: earn 2-5 OIL per message, dynamic difficulty
   const earnOilFromChat = useCallback(() => {
     setRegenmon((prev) => {
@@ -261,5 +277,6 @@ export function useRegenmon(privyUserId?: string | null) {
     earnOilFromChat,
     showOilFloat,
     addOperation,
+    certify,
   }
 }
