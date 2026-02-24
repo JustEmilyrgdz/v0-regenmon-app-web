@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import type { RegenmonData } from "@/hooks/use-regenmon"
+import type { RegenmonData, RegenmonStage } from "@/hooks/use-regenmon"
+import { STAGE_INFO } from "@/hooks/use-regenmon"
 import { RegenmonSprite } from "@/components/regenmon-sprite"
 import { RegenmonChat } from "@/components/regenmon-chat"
 import { TrainingScreen } from "@/components/training-screen"
@@ -41,7 +42,8 @@ interface PetScreenProps {
   onInjectMaintenance: () => boolean
   onEarnOilFromChat: () => void
   onShowOilFloat: (text: string, color: string) => void
-  onCertify: (xp: number, oil: number) => void
+  onCertify: (score: number, category: string) => void
+  evolutionAlert: { stage: RegenmonStage; name: string } | null
 }
 
 export function PetScreen({
@@ -62,6 +64,7 @@ export function PetScreen({
   onEarnOilFromChat,
   onShowOilFloat,
   onCertify,
+  evolutionAlert,
 }: PetScreenProps) {
   const [showConfirm, setShowConfirm] = useState(false)
   const [showTraining, setShowTraining] = useState(false)
@@ -178,6 +181,16 @@ export function PetScreen({
             <p className="font-sans text-[8px] sm:text-[10px]" style={{ color: "hsl(0 0% 50%)" }}>
               {"Comisionado: "}{new Date(regenmon.createdAt).toLocaleDateString("es-ES")}
             </p>
+
+            {/* Stage Display */}
+            <div className="flex items-center gap-2 mt-1">
+              <span className="font-sans text-[9px]" style={{ color: "#ff8c00" }}>
+                {STAGE_INFO[regenmon.stage || 1].emoji} {STAGE_INFO[regenmon.stage || 1].name}
+              </span>
+              <span className="font-sans text-[7px]" style={{ color: "#666" }}>
+                ({regenmon.totalExp || 0} EXP)
+              </span>
+            </div>
           </div>
         </div>
 
@@ -376,6 +389,29 @@ export function PetScreen({
           </div>
         ))}
 
+        {/* Evolution Alert */}
+        {evolutionAlert && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+            <div className="text-center p-6 animate-bounce-in" style={{ border: "4px solid #ff8c00", backgroundColor: "rgba(10,10,10,0.97)" }}>
+              <p className="font-sans text-xs" style={{ color: "#ff8c00" }}>
+                {"¡Actualización de Activo Completada!"}
+              </p>
+              <p className="font-sans text-2xl mt-2">
+                {STAGE_INFO[evolutionAlert.stage].emoji}
+              </p>
+              <p className="font-sans text-[10px] mt-2" style={{ color: "#ccc" }}>
+                {evolutionAlert.name} ha subido al <span style={{ color: "#ff8c00" }}>Stage {evolutionAlert.stage}</span>
+              </p>
+              <p className="font-sans text-[9px] mt-1" style={{ color: "#22c55e" }}>
+                {STAGE_INFO[evolutionAlert.stage].name}
+              </p>
+              <p className="font-sans text-[9px] mt-2" style={{ color: "#ff8c00" }}>
+                Bonus: +100 🛢️ por optimización de procesos
+              </p>
+            </div>
+          </div>
+        )}
+
         {celebrating && (
           <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
             <div className="text-center p-6" style={{ border: "4px solid #ff8c00", backgroundColor: "rgba(10,10,10,0.95)" }}>
@@ -394,7 +430,8 @@ export function PetScreen({
       {/* Training Screen */}
       {showTraining && (
         <TrainingScreen
-          onComplete={(xp, oil) => onCertify(xp, oil)}
+          onComplete={(score, category) => onCertify(score, category)}
+          trainingHistory={regenmon.trainingHistory}
           onClose={() => setShowTraining(false)}
         />
       )}

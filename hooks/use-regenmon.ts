@@ -1,6 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 
 export type RegenmonType = "green" | "brown" | "black"
+export type RegenmonStage = 1 | 2 | 3
+
+export interface TrainingHistoryEntry {
+  timestamp: string
+  category: string
+  score: number
+  xpEarned: number
+  oilEarned: number
+}
 
 export interface RegenmonData {
   name: string
@@ -8,12 +17,15 @@ export interface RegenmonData {
   happiness: number
   hunger: number
   xp: number
+  totalExp: number
   level: number
+  stage: RegenmonStage
   oil: number
   createdAt: string
   dailyOilEarned?: number
   dailyOilDate?: string
   operationLog?: OperationLogEntry[]
+  trainingHistory?: TrainingHistoryEntry[]
 }
 
 export interface OperationLogEntry {
@@ -34,25 +46,39 @@ function getTodayStr() {
   return new Date().toISOString().slice(0, 10)
 }
 
+function calculateStage(totalExp: number): RegenmonStage {
+  if (totalExp >= 1500) return 3
+  if (totalExp >= 500) return 2
+  return 1
+}
+
+export const STAGE_INFO = {
+  1: { emoji: "🧊", name: "Prototipo de Laboratorio", range: "0 - 499 EXP" },
+  2: { emoji: "🏗️", name: "Unidad de Control Móvil", range: "500 - 1499 EXP" },
+  3: { emoji: "🏭", name: "Complejo Petroquímico Integrado", range: "1500+ EXP" },
+}
+
 export function useRegenmon(privyUserId?: string | null) {
   const [regenmon, setRegenmon] = useState<RegenmonData | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [cooldown, setCooldown] = useState(false)
   const [celebrating, setCelebrating] = useState(false)
+  const [evolutionAlert, setEvolutionAlert] = useState<{ stage: RegenmonStage; name: string } | null>(null)
   const [oilFloats, setOilFloats] = useState<Array<{ id: number; text: string; color: string }>>([])
   const cooldownTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const floatId = useRef(0)
   const storageKey = getStorageKey(privyUserId)
 
-  // Load from localStorage on mount or when storageKey changes
   useEffect(() => {
     try {
       const saved = localStorage.getItem(storageKey)
       if (saved) {
         const parsed = JSON.parse(saved) as RegenmonData
-        // migrate: add oil if missing
         if (parsed.oil === undefined) parsed.oil = 100
         if (!parsed.operationLog) parsed.operationLog = []
+        if (!parsed.trainingHistory) parsed.trainingHistory = []
+        if (parsed.totalExp === undefined) parsed.totalExp = 0
+        if (parsed.stage === undefined) parsed.stage = calculateStage(parsed.totalExp)
         setRegenmon(parsed)
       } else {
         setRegenmon(null)
@@ -63,14 +89,12 @@ export function useRegenmon(privyUserId?: string | null) {
     setLoaded(true)
   }, [storageKey])
 
-  // Save to localStorage whenever regenmon changes
   useEffect(() => {
     if (regenmon && loaded) {
       localStorage.setItem(storageKey, JSON.stringify(regenmon))
     }
   }, [regenmon, loaded, storageKey])
 
-  // Happiness and hunger decay
   const isAlive = regenmon !== null
   useEffect(() => {
     if (!isAlive) return
@@ -95,14 +119,6 @@ export function useRegenmon(privyUserId?: string | null) {
     }, 2000)
   }, [])
 
-  const addOperation = useCallback((action: string, oilDelta: number) => {
-    setRegenmon((prev) => {
-      if (!prev) return prev
-      const log = [...(prev.operationLog || []), { timestamp: new Date().toISOString(), action, oilDelta }].slice(-10)
-      return { ...prev, operationLog: log }
-    })
-  }, [])
-
   const createRegenmon = useCallback((name: string, type: RegenmonType) => {
     const newRegenmon: RegenmonData = {
       name,
@@ -110,12 +126,15 @@ export function useRegenmon(privyUserId?: string | null) {
       happiness: 100,
       hunger: 100,
       xp: 0,
+      totalExp: 0,
       level: 1,
+      stage: 1,
       oil: 100,
       createdAt: new Date().toISOString(),
       dailyOilEarned: 0,
       dailyOilDate: getTodayStr(),
       operationLog: [],
+      trainingHistory: [],
     }
     setRegenmon(newRegenmon)
     localStorage.setItem(storageKey, JSON.stringify(newRegenmon))
@@ -153,12 +172,7 @@ export function useRegenmon(privyUserId?: string | null) {
     startCooldown()
     setRegenmon((prev) => {
       if (!prev) return prev
-      const updated = {
-        ...prev,
-        hunger: Math.min(100, prev.hunger + 25),
-        happiness: Math.min(100, prev.happiness + 5),
-        xp: prev.xp + 5,
-      }
+      const updated = { ...prev, hunger: Math.min(100, prev.hunger + 25), happiness: Math.min(100, prev.happiness + 5), xp: prev.xp + 5 }
       return checkLevelUp(updated)
     })
   }, [cooldown, regenmon, startCooldown, checkLevelUp])
@@ -168,11 +182,7 @@ export function useRegenmon(privyUserId?: string | null) {
     startCooldown()
     setRegenmon((prev) => {
       if (!prev) return prev
-      const updated = {
-        ...prev,
-        happiness: Math.min(100, prev.happiness + 15),
-        xp: prev.xp + 10,
-      }
+      const updated = { ...prev, happiness: Math.min(100, prev.happiness + 15), xp: prev.xp + 10 }
       return checkLevelUp(updated)
     })
   }, [cooldown, regenmon, startCooldown, checkLevelUp])
@@ -182,11 +192,7 @@ export function useRegenmon(privyUserId?: string | null) {
     startCooldown()
     setRegenmon((prev) => {
       if (!prev) return prev
-      const updated = {
-        ...prev,
-        happiness: Math.min(100, prev.happiness + 5),
-        xp: prev.xp + 20,
-      }
+      const updated = { ...prev, happiness: Math.min(100, prev.happiness + 5), xp: prev.xp + 20 }
       return checkLevelUp(updated)
     })
   }, [cooldown, regenmon, startCooldown, checkLevelUp])
@@ -194,14 +200,10 @@ export function useRegenmon(privyUserId?: string | null) {
   const boostHappiness = useCallback((delta: number) => {
     setRegenmon((prev) => {
       if (!prev) return prev
-      return {
-        ...prev,
-        happiness: Math.min(100, Math.max(0, prev.happiness + delta)),
-      }
+      return { ...prev, happiness: Math.min(100, Math.max(0, prev.happiness + delta)) }
     })
   }, [])
 
-  // Inject maintenance action (costs 10 OIL, +25 hunger)
   const injectMaintenance = useCallback(() => {
     if (cooldown || !regenmon) return false
     if (regenmon.oil < 10) return false
@@ -209,55 +211,73 @@ export function useRegenmon(privyUserId?: string | null) {
     setRegenmon((prev) => {
       if (!prev) return prev
       const log = [...(prev.operationLog || []), { timestamp: new Date().toISOString(), action: "⛽ Inyectar Aditivos", oilDelta: -10 }].slice(-10)
-      return {
-        ...prev,
-        oil: prev.oil - 10,
-        hunger: Math.min(100, prev.hunger + 25),
-        operationLog: log,
-      }
+      return { ...prev, oil: prev.oil - 10, hunger: Math.min(100, prev.hunger + 25), operationLog: log }
     })
     showOilFloat("-10 🛢️", "#ff4444")
     return true
   }, [cooldown, regenmon, startCooldown, showOilFloat])
 
-  // Certification: award XP and OIL from technical evaluation
-  const certify = useCallback((xp: number, oil: number) => {
+  // Certification: EXP = score, OIL = score × 0.5, stat impact if score >= 80
+  const certify = useCallback((score: number, category: string) => {
+    const xpEarned = score
+    const oilEarned = Math.floor(score * 0.5)
+
     setRegenmon((prev) => {
       if (!prev) return prev
-      const log = [...(prev.operationLog || []), { timestamp: new Date().toISOString(), action: "📋 Certificación Técnica", oilDelta: oil }].slice(-10)
-      const updated = {
+
+      const oldStage = prev.stage
+      const newTotalExp = prev.totalExp + xpEarned
+      const newStage = calculateStage(newTotalExp)
+
+      // Stat impact if score >= 80
+      let happinessDelta = 0
+      let hungerDelta = 0
+      if (score >= 80) {
+        happinessDelta = 15
+        hungerDelta = 15
+      }
+
+      // Evolution bonus
+      let evolutionBonus = 0
+      if (newStage > oldStage) {
+        evolutionBonus = 100
+        setTimeout(() => {
+          setEvolutionAlert({ stage: newStage, name: prev.name })
+          setTimeout(() => setEvolutionAlert(null), 4000)
+        }, 500)
+      }
+
+      const log = [...(prev.operationLog || []), { timestamp: new Date().toISOString(), action: `📋 Certificación: ${category}`, oilDelta: oilEarned + evolutionBonus }].slice(-10)
+      const history = [...(prev.trainingHistory || []), { timestamp: new Date().toISOString(), category, score, xpEarned, oilEarned: oilEarned + evolutionBonus }].slice(-20)
+
+      const updated: RegenmonData = {
         ...prev,
-        xp: prev.xp + xp,
-        oil: prev.oil + oil,
+        xp: prev.xp + xpEarned,
+        totalExp: newTotalExp,
+        stage: newStage,
+        oil: prev.oil + oilEarned + evolutionBonus,
+        happiness: Math.min(100, prev.happiness + happinessDelta),
+        hunger: Math.min(100, prev.hunger + hungerDelta),
         operationLog: log,
+        trainingHistory: history,
       }
       return checkLevelUp(updated)
     })
-    if (oil > 0) showOilFloat(`+${oil} 🛢️`, "#ff8c00")
+    if (oilEarned > 0) showOilFloat(`+${oilEarned} 🛢️`, "#ff8c00")
   }, [checkLevelUp, showOilFloat])
 
-  // Chat mining: earn 2-5 OIL per message, dynamic difficulty
   const earnOilFromChat = useCallback(() => {
     setRegenmon((prev) => {
       if (!prev) return prev
       const today = getTodayStr()
       let dailyEarned = prev.dailyOilDate === today ? (prev.dailyOilEarned || 0) : 0
       if (dailyEarned >= DAILY_OIL_CAP) return prev
-
-      // Dynamic difficulty: closer to 100 = harder
       const difficultyFactor = Math.max(0.2, 1 - (prev.oil / 150))
-      const baseEarn = 2 + Math.floor(Math.random() * 4) // 2-5
+      const baseEarn = 2 + Math.floor(Math.random() * 4)
       const earned = Math.max(1, Math.round(baseEarn * difficultyFactor))
       const actualEarned = Math.min(earned, DAILY_OIL_CAP - dailyEarned)
-
       const log = [...(prev.operationLog || []), { timestamp: new Date().toISOString(), action: "💬 Chat mining", oilDelta: actualEarned }].slice(-10)
-      return {
-        ...prev,
-        oil: prev.oil + actualEarned,
-        dailyOilEarned: dailyEarned + actualEarned,
-        dailyOilDate: today,
-        operationLog: log,
-      }
+      return { ...prev, oil: prev.oil + actualEarned, dailyOilEarned: dailyEarned + actualEarned, dailyOilDate: today, operationLog: log }
     })
   }, [])
 
@@ -266,6 +286,7 @@ export function useRegenmon(privyUserId?: string | null) {
     loaded,
     cooldown,
     celebrating,
+    evolutionAlert,
     oilFloats,
     createRegenmon,
     resetRegenmon,
@@ -276,7 +297,6 @@ export function useRegenmon(privyUserId?: string | null) {
     injectMaintenance,
     earnOilFromChat,
     showOilFloat,
-    addOperation,
     certify,
   }
 }

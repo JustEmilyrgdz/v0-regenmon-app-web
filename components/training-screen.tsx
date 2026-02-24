@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import type { TrainingHistoryEntry } from "@/hooks/use-regenmon"
 
 const CATEGORIES = [
   { id: "yacimientos", emoji: "📂", name: "Yacimientos", color: "#3b82f6", desc: "Cálculos de reservas, porosidad, permeabilidad o gráficas de declinación" },
@@ -9,17 +10,26 @@ const CATEGORIES = [
   { id: "gestion", emoji: "📊", name: "Gestión de Proyectos", color: "#f59e0b", desc: "Diagramas de Gantt de perforación, hojas de costos o análisis de riesgo petrolero" },
 ]
 
-interface TrainingScreenProps {
-  onComplete: (xp: number, oil: number) => void
-  onClose: () => void
+function getCertLevel(score: number) {
+  if (score >= 80) return { label: "🏆 Certificación de Excelencia", bg: "#ff8c00", color: "#000" }
+  if (score >= 60) return { label: "⭐ Operación Estándar", bg: "#22c55e", color: "#000" }
+  if (score >= 40) return { label: "👍 Mantenimiento Requerido", bg: "#eab308", color: "#000" }
+  return { label: "💪 Falla Crítica en Pozo", bg: "#ff4444", color: "#fff" }
 }
 
-export function TrainingScreen({ onComplete, onClose }: TrainingScreenProps) {
+interface TrainingScreenProps {
+  onComplete: (score: number, category: string) => void
+  onClose: () => void
+  trainingHistory?: TrainingHistoryEntry[]
+}
+
+export function TrainingScreen({ onComplete, onClose, trainingHistory }: TrainingScreenProps) {
   const [selected, setSelected] = useState<string | null>(null)
   const [imageData, setImageData] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ score: number; feedback: string } | null>(null)
   const [rewarded, setRewarded] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -50,29 +60,43 @@ export function TrainingScreen({ onComplete, onClose }: TrainingScreenProps) {
   }
 
   function handleClaim() {
-    if (!result || rewarded) return
-    const xp = Math.floor(result.score / 2)
-    const oil = result.score >= 70 ? Math.floor(5 + ((result.score - 70) / 30) * 10) : 0
-    onComplete(xp, oil)
+    if (!result || rewarded || !selected) return
+    const catName = CATEGORIES.find(c => c.id === selected)?.name || selected
+    onComplete(result.score, catName)
     setRewarded(true)
   }
 
-  function scoreColor(s: number) {
-    if (s > 70) return "#22c55e"
-    if (s >= 50) return "#ff8c00"
-    return "#ff4444"
-  }
+  const xpEarned = result ? result.score : 0
+  const oilEarned = result ? Math.floor(result.score * 0.5) : 0
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0,0,0,0.85)" }}>
       <div className="w-full max-w-md max-h-[90vh] overflow-y-auto" style={{ backgroundColor: "#0a0a0a", border: "4px solid #ff8c00" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "3px solid #ff8c00" }}>
-          <span className="font-sans text-xs font-bold" style={{ color: "#ff8c00" }}>📋 Certificación Técnica</span>
-          <button type="button" onClick={onClose} className="font-sans text-xs px-2 py-1" style={{ color: "#ff4444", border: "2px solid #ff4444", backgroundColor: "transparent" }}>✕</button>
+          <span className="font-sans text-xs font-bold" style={{ color: "#ff8c00" }}>🎓 Certificación Técnica</span>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setShowHistory(!showHistory)} className="font-sans text-[8px] px-2 py-1" style={{ color: "#ff8c00", border: "2px solid #ff8c00", backgroundColor: "transparent" }}>📜 Log</button>
+            <button type="button" onClick={onClose} className="font-sans text-[8px] px-2 py-1" style={{ color: "#ff4444", border: "2px solid #ff4444", backgroundColor: "transparent" }}>✕</button>
+          </div>
         </div>
 
         <div className="p-4 flex flex-col gap-4">
+          {/* Training History */}
+          {showHistory && trainingHistory && trainingHistory.length > 0 && (
+            <div style={{ border: "3px solid #333", backgroundColor: "#111", padding: "8px", maxHeight: "200px", overflowY: "auto" }}>
+              <p className="font-sans text-[8px] font-bold mb-2" style={{ color: "#ff8c00" }}>📜 Log de Operaciones ({trainingHistory.length})</p>
+              {trainingHistory.slice().reverse().map((entry, i) => (
+                <div key={i} className="flex justify-between font-sans text-[7px] py-1" style={{ borderBottom: "1px solid #222" }}>
+                  <span style={{ color: "#666" }}>{new Date(entry.timestamp).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit" })}</span>
+                  <span style={{ color: "#999" }}>{entry.category}</span>
+                  <span style={{ color: getCertLevel(entry.score).bg }}>{entry.score}/100</span>
+                  <span style={{ color: "#ff8c00" }}>+{entry.oilEarned}🛢️</span>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Category Selection */}
           {!result && (
             <>
@@ -101,19 +125,21 @@ export function TrainingScreen({ onComplete, onClose }: TrainingScreenProps) {
               {selected && (
                 <div className="flex flex-col gap-2">
                   <p className="font-sans text-[8px] sm:text-[10px]" style={{ color: "#999" }}>Sube foto/screenshot de tu evidencia:</p>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="font-sans text-[8px]"
-                    style={{ color: "#999" }}
-                  />
-                  {imageData && (
-                    <div style={{ border: "2px solid #333", padding: "4px" }}>
-                      <img src={imageData} alt="preview" className="w-full max-h-40 object-contain" />
-                    </div>
-                  )}
+                  <div style={{ border: "3px solid #ff8c00", padding: "8px", backgroundColor: "#111" }}>
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="font-sans text-[8px] w-full"
+                      style={{ color: "#999" }}
+                    />
+                    {imageData && (
+                      <div className="mt-2" style={{ border: "2px solid #333", padding: "4px" }}>
+                        <img src={imageData} alt="preview" className="w-full max-h-40 object-contain" />
+                      </div>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={handleSubmit}
@@ -137,16 +163,38 @@ export function TrainingScreen({ onComplete, onClose }: TrainingScreenProps) {
           {/* Results */}
           {result && (
             <div className="flex flex-col items-center gap-4">
-              <p className="font-sans text-[10px] font-bold" style={{ color: "#ff8c00" }}>Resultado de Evaluación</p>
+              {/* Certification Level Banner */}
+              {(() => {
+                const cert = getCertLevel(result.score)
+                return (
+                  <div className="w-full py-2 px-3 text-center font-sans text-[10px] font-bold" style={{ backgroundColor: cert.bg, color: cert.color }}>
+                    {cert.label}
+                  </div>
+                )
+              })()}
+
               <div className="text-center">
-                <span className="font-sans text-4xl font-bold" style={{ color: scoreColor(result.score) }}>{result.score}</span>
+                <span className="font-sans text-4xl font-bold" style={{ color: getCertLevel(result.score).bg }}>{result.score}</span>
                 <span className="font-sans text-xs" style={{ color: "#666" }}>/100</span>
               </div>
               <p className="font-sans text-[9px] text-center leading-relaxed px-2" style={{ color: "#ccc" }}>{result.feedback}</p>
 
-              <div className="flex gap-4 font-sans text-[9px]">
-                <span style={{ color: "#999" }}>XP: <span style={{ color: "#22c55e" }}>+{Math.floor(result.score / 2)}</span></span>
-                <span style={{ color: "#999" }}>$OIL: <span style={{ color: result.score >= 70 ? "#ff8c00" : "#666" }}>{result.score >= 70 ? `+${Math.floor(5 + ((result.score - 70) / 30) * 10)}` : "+0"}</span></span>
+              {/* Rewards breakdown */}
+              <div className="w-full" style={{ border: "3px solid #333", backgroundColor: "#111", padding: "10px" }}>
+                <p className="font-sans text-[8px] font-bold mb-2" style={{ color: "#ff8c00" }}>Recompensas:</p>
+                <div className="flex justify-between font-sans text-[9px]">
+                  <span style={{ color: "#999" }}>Puntos EXP:</span>
+                  <span style={{ color: "#22c55e" }}>+{xpEarned} EXP</span>
+                </div>
+                <div className="flex justify-between font-sans text-[9px]">
+                  <span style={{ color: "#999" }}>Tokens $OIL:</span>
+                  <span style={{ color: "#ff8c00" }}>+{oilEarned} 🛢️</span>
+                </div>
+                {result.score >= 80 && (
+                  <div className="mt-1 pt-1" style={{ borderTop: "1px solid #333" }}>
+                    <p className="font-sans text-[8px]" style={{ color: "#22c55e" }}>Bonus Excelencia: +15 Estabilidad, +15 Inyección</p>
+                  </div>
+                )}
               </div>
 
               {!rewarded ? (

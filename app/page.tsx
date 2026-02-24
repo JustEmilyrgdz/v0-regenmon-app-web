@@ -15,6 +15,7 @@ export default function Page() {
     loaded,
     cooldown,
     celebrating,
+    evolutionAlert,
     oilFloats,
     createRegenmon,
     resetRegenmon,
@@ -81,6 +82,7 @@ export default function Page() {
           onEarnOilFromChat={earnOilFromChat}
           onShowOilFloat={showOilFloat}
           onCertify={certify}
+          evolutionAlert={evolutionAlert}
         />
       </div>
     </>
