@@ -3,6 +3,7 @@
 import { useState } from "react"
 import type { RegenmonData } from "@/hooks/use-regenmon"
 import { RegenmonSprite } from "@/components/regenmon-sprite"
+import { RegenmonChat } from "@/components/regenmon-chat"
 
 const TYPE_CONFIG = {
   green: {
@@ -30,6 +31,7 @@ interface PetScreenProps {
   onPlay: () => void
   onTrain: () => void
   onReset: () => void
+  onStatChange: (delta: number) => void
 }
 
 export function PetScreen({
@@ -40,6 +42,7 @@ export function PetScreen({
   onPlay,
   onTrain,
   onReset,
+  onStatChange,
 }: PetScreenProps) {
   const [showConfirm, setShowConfirm] = useState(false)
   const config = TYPE_CONFIG[regenmon.type]
@@ -223,6 +226,9 @@ export function PetScreen({
             {"Esperando cooldown..."}
           </p>
         )}
+
+        {/* Chat Section */}
+        <RegenmonChat regenmon={regenmon} onStatChange={onStatChange} />
 
         {celebrating && (
           <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
