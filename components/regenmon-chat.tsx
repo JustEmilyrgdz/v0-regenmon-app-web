@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import type { RegenmonData } from "@/hooks/use-regenmon"
@@ -28,6 +28,12 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const messageCountRef = useRef(0)
   const floatIdRef = useRef(0)
+  const regenmonRef = useRef(regenmon)
+  const memoriesRef = useRef(memories)
+
+  // Keep refs in sync
+  useEffect(() => { regenmonRef.current = regenmon }, [regenmon])
+  useEffect(() => { memoriesRef.current = memories }, [memories])
 
   // Load memories from localStorage
   useEffect(() => {
@@ -46,23 +52,23 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
     }
   }, [memories])
 
-  const { messages, sendMessage, status } = useChat({
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      prepareSendMessagesRequest: ({ id, messages: msgs }) => ({
-        body: {
-          messages: msgs,
-          id,
-          regenmonName: regenmon.name,
-          regenmonType: regenmon.type,
-          happiness: regenmon.happiness,
-          hunger: regenmon.hunger ?? 100,
-          level: regenmon.level,
-          memories,
-        },
-      }),
+  const transport = useMemo(() => new DefaultChatTransport({
+    api: "/api/chat",
+    prepareSendMessagesRequest: ({ id, messages: msgs }) => ({
+      body: {
+        messages: msgs,
+        id,
+        regenmonName: regenmonRef.current.name,
+        regenmonType: regenmonRef.current.type,
+        happiness: regenmonRef.current.happiness,
+        hunger: regenmonRef.current.hunger ?? 100,
+        level: regenmonRef.current.level,
+        memories: memoriesRef.current,
+      },
     }),
-  })
+  }), [])
+
+  const { messages, sendMessage, status } = useChat({ transport })
 
   const isLoading = status === "streaming" || status === "submitted"
 
