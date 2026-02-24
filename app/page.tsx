@@ -16,6 +16,7 @@ export default function Page() {
     feed,
     play,
     train,
+    boostHappiness,
   } = useRegenmon()
 
   // Wait for localStorage to load
@@ -58,6 +59,7 @@ export default function Page() {
           onPlay={play}
           onTrain={train}
           onReset={resetRegenmon}
+          onStatChange={boostHappiness}
         />
       </div>
     </>

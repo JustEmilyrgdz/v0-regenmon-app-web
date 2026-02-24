@@ -145,6 +145,16 @@ export function useRegenmon() {
     })
   }, [cooldown, regenmon, startCooldown, checkLevelUp])
 
+  const boostHappiness = useCallback((delta: number) => {
+    setRegenmon((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        happiness: Math.min(100, Math.max(0, prev.happiness + delta)),
+      }
+    })
+  }, [])
+
   return {
     regenmon,
     loaded,
@@ -155,5 +165,6 @@ export function useRegenmon() {
     feed,
     play,
     train,
+    boostHappiness,
   }
 }

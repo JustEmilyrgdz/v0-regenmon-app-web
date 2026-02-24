@@ -100,3 +100,15 @@
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
+
+/* Float up animation for stat changes */
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -60px);
+  }
+}
