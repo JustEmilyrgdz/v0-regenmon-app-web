@@ -114,7 +114,7 @@ export function useCoins(userId: string | null) {
 
     const reward = Math.floor(Math.random() * 4) + 2 // 2-5 coins
     chatRewardsThisSession.current++
-    earnCoins(reward, "Chat con Regenmon")
+    earnCoins(reward, "Ganancia por consulta tecnica")
     return reward
   }, [coins, earnCoins])
 

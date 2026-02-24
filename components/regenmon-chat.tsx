@@ -12,6 +12,7 @@ const MAX_MESSAGES = 20
 interface RegenmonChatProps {
   regenmon: RegenmonData
   onStatChange: (happinessDelta: number) => void
+  onChatReward?: () => number
 }
 
 function getTextFromParts(parts: Array<{ type: string; text?: string }>): string {
@@ -21,7 +22,7 @@ function getTextFromParts(parts: Array<{ type: string; text?: string }>): string
     .join("")
 }
 
-export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
+export function RegenmonChat({ regenmon, onStatChange, onChatReward }: RegenmonChatProps) {
   const [input, setInput] = useState("")
   const [memories, setMemories] = useState<string[]>([])
   const [statFloats, setStatFloats] = useState<Array<{ id: number; text: string; color: string }>>([])
@@ -119,9 +120,14 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
       for (let i = messageCountRef.current; i < newCount; i++) {
         const msg = messages[i]
         if (msg.role === "user") {
-          // Each user message: +5 happiness
+          // Each user message: +5 stability
           onStatChange(5)
-          showStatFloat("+5 Felicidad", "hsl(145 60% 45%)")
+          showStatFloat("+5 Estabilidad", "#00cc44")
+
+          // Try to earn $OIL from chat
+          if (onChatReward) {
+            onChatReward()
+          }
 
           // Detect memories
           const text = getTextFromParts(msg.parts as Array<{ type: string; text?: string }>)
@@ -131,7 +137,7 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
 
       // If conversation has 5+ consecutive messages, extra penalty
       if (newCount > 10 && diff > 0) {
-        showStatFloat("-5 Energia extra", "hsl(0 70% 55%)")
+        showStatFloat("-5 Desgaste operativo", "#ff4444")
       }
 
       messageCountRef.current = newCount
@@ -155,14 +161,17 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
   return (
     <div className="w-full max-w-md flex flex-col">
       {/* Header */}
-      <div className="nes-container is-dark flex items-center justify-between" style={{ padding: "8px 12px", marginBottom: 0 }}>
-        <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "hsl(0 0% 88%)" }}>
-          {"💬 Chat"}
+      <div
+        className="flex items-center justify-between px-3 py-2"
+        style={{ backgroundColor: "#111111", border: "1px solid #333", borderBottom: "1px solid #ff8c00", marginBottom: 0 }}
+      >
+        <span className="font-sans text-[8px] sm:text-[10px] flex items-center gap-1" style={{ color: "#ff8c00" }}>
+          {"Terminal de Comunicaciones"}
         </span>
         <div className="flex items-center gap-2">
           {memories.length > 0 && (
-            <span className="font-sans text-[8px]" style={{ color: "hsl(35 80% 55%)" }}>
-              {"🧠 "}{memories.length}{" memorias"}
+            <span className="font-sans text-[7px]" style={{ color: "#00cc44" }}>
+              {"DATA: "}{memories.length}{" registros"}
             </span>
           )}
         </div>
@@ -171,17 +180,18 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
       {/* Messages */}
       <div
         ref={scrollRef}
-        className="nes-container is-dark flex flex-col gap-3 overflow-y-auto"
+        className="flex flex-col gap-3 overflow-y-auto"
         style={{
           height: "240px",
           padding: "12px",
-          borderTop: "none",
-          borderBottom: "none",
+          backgroundColor: "#0d0d0d",
+          borderLeft: "1px solid #333",
+          borderRight: "1px solid #333",
         }}
       >
         {messages.length === 0 && (
-          <p className="font-sans text-[8px] text-center py-8" style={{ color: "hsl(0 0% 50%)" }}>
-            {"Habla con tu Regenmon!"}
+          <p className="font-sans text-[8px] text-center py-8" style={{ color: "#555" }}>
+            {"Inicia comunicacion con tu Regenmon..."}
           </p>
         )}
 
@@ -195,12 +205,11 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
               className={`flex ${isUser ? "justify-end" : "justify-start"} animate-bounce-in`}
             >
               <div
-                className="nes-container is-rounded max-w-[85%]"
+                className="max-w-[85%] px-3 py-2"
                 style={{
-                  padding: "8px 12px",
-                  backgroundColor: isUser ? "hsl(145 60% 25%)" : "hsl(0 0% 15%)",
-                  borderColor: isUser ? "hsl(145 60% 35%)" : "hsl(0 0% 25%)",
-                  color: "hsl(0 0% 88%)",
+                  backgroundColor: isUser ? "#1a2a1a" : "#1a1a1a",
+                  border: `1px solid ${isUser ? "#00cc44" : "#333"}`,
+                  color: "#ddd",
                 }}
               >
                 <p className="font-sans text-[8px] sm:text-[10px] leading-relaxed break-words">
@@ -215,15 +224,14 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
         {isLoading && (
           <div className="flex justify-start animate-bounce-in">
             <div
-              className="nes-container is-rounded"
+              className="px-3 py-2"
               style={{
-                padding: "8px 12px",
-                backgroundColor: "hsl(0 0% 15%)",
-                borderColor: "hsl(0 0% 25%)",
+                backgroundColor: "#1a1a1a",
+                border: "1px solid #333",
               }}
             >
-              <span className="font-sans text-[10px] animate-pulse" style={{ color: "hsl(35 80% 55%)" }}>
-                {"..."}
+              <span className="font-sans text-[10px] animate-pulse" style={{ color: "#ff8c00" }}>
+                {"Procesando datos..."}
               </span>
             </div>
           </div>
@@ -232,25 +240,35 @@ export function RegenmonChat({ regenmon, onStatChange }: RegenmonChatProps) {
 
       {/* Input */}
       <form onSubmit={handleSubmit}>
-        <div className="nes-container is-dark flex items-center gap-2" style={{ padding: "8px 12px", borderTop: "none" }}>
+        <div
+          className="flex items-center gap-2 px-3 py-2"
+          style={{ backgroundColor: "#111111", border: "1px solid #333", borderTop: "1px solid #ff8c00" }}
+        >
           <input
             type="text"
-            className="nes-input font-sans text-[10px] flex-1"
+            className="font-sans text-[10px] flex-1 px-2 py-1 outline-none"
             style={{
-              backgroundColor: "hsl(0 0% 12%)",
-              color: "hsl(0 0% 88%)",
-              padding: "6px 8px",
+              backgroundColor: "#1a1a1a",
+              color: "#ddd",
+              border: "1px solid #333",
             }}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Escribe algo..."
+            placeholder="Transmitir mensaje..."
             disabled={isLoading}
             maxLength={200}
           />
           <button
             type="submit"
-            className={`nes-btn font-sans text-[8px] ${isLoading ? "is-disabled" : "is-primary"}`}
+            className="font-sans text-[8px] px-3 py-1"
             disabled={isLoading}
+            style={{
+              backgroundColor: isLoading ? "#1a1a1a" : "#ff8c00",
+              border: `1px solid ${isLoading ? "#333" : "#cc7000"}`,
+              color: isLoading ? "#555" : "#0a0a0a",
+              cursor: isLoading ? "not-allowed" : "pointer",
+              fontWeight: "bold",
+            }}
           >
             {"Enviar"}
           </button>

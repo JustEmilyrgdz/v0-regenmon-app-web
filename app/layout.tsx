@@ -11,12 +11,12 @@ const pressStart2P = Press_Start_2P({
 })
 
 export const metadata: Metadata = {
-  title: 'Regenmon - Tu Mascota Virtual',
-  description: 'Crea y cuida a tu Regenmon, una mascota virtual estilo Tamagotchi con estetica retro pixel art.',
+  title: 'Regenmon: Petroleum Edition',
+  description: 'Plataforma de mascota virtual petrolera con economia $OIL, chat IA y estetica retro pixel art.',
 }
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
+  themeColor: '#0a0a0a',
   width: 'device-width',
   initialScale: 1,
 }

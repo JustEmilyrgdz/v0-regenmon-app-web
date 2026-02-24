@@ -10,39 +10,39 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
+    --background: 0 0% 4%;
     --foreground: 0 0% 88%;
     --card: 0 0% 7%;
     --card-foreground: 0 0% 88%;
     --popover: 0 0% 7%;
     --popover-foreground: 0 0% 88%;
-    --primary: 145 60% 45%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 35 80% 55%;
-    --secondary-foreground: 0 0% 0%;
+    --primary: 33 100% 50%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 120 100% 40%;
+    --secondary-foreground: 0 0% 4%;
     --muted: 0 0% 12%;
     --muted-foreground: 0 0% 50%;
-    --accent: 0 70% 55%;
-    --accent-foreground: 0 0% 95%;
+    --accent: 33 100% 50%;
+    --accent-foreground: 0 0% 4%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 18%;
     --input: 0 0% 18%;
-    --ring: 145 60% 45%;
-    --chart-1: 145 60% 45%;
-    --chart-2: 35 80% 55%;
+    --ring: 33 100% 50%;
+    --chart-1: 33 100% 50%;
+    --chart-2: 120 100% 40%;
     --chart-3: 0 70% 55%;
     --chart-4: 0 0% 40%;
     --chart-5: 60 20% 50%;
     --radius: 0px;
-    --sidebar-background: 0 0% 0%;
+    --sidebar-background: 0 0% 4%;
     --sidebar-foreground: 0 0% 88%;
-    --sidebar-primary: 145 60% 45%;
-    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-primary: 33 100% 50%;
+    --sidebar-primary-foreground: 0 0% 4%;
     --sidebar-accent: 0 0% 12%;
     --sidebar-accent-foreground: 0 0% 88%;
     --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 145 60% 45%;
+    --sidebar-ring: 33 100% 50%;
   }
 }
 
@@ -67,7 +67,7 @@
 }
 
 .nes-container.with-title > .title {
-  background-color: hsl(0 0% 0%) !important;
+  background-color: hsl(0 0% 4%) !important;
   color: hsl(0 0% 88%) !important;
 }
 
@@ -87,12 +87,12 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(0 0% 0%);
+  background: hsl(0 0% 4%);
 }
 
 ::-webkit-scrollbar-thumb {
   background: hsl(0 0% 18%);
-  border: 2px solid hsl(0 0% 0%);
+  border: 2px solid hsl(0 0% 4%);
 }
 
 /* Pixel perfect rendering */

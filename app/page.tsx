@@ -37,11 +37,11 @@ export default function Page() {
     return (
       <>
         <OilTowerBg />
-        <main className="relative z-10 min-h-screen flex items-center justify-center">
+        <main className="relative z-10 min-h-screen flex items-center justify-center" style={{ backgroundColor: "#0a0a0a" }}>
           <div className="flex flex-col items-center gap-4">
-            <span className="text-5xl animate-bounce-in">{"🥚"}</span>
-            <p className="font-sans text-xs animate-pulse" style={{ color: "hsl(0 0% 88%)" }}>
-              {"Cargando..."}
+            <span className="text-5xl animate-bounce-in">{"🛢️"}</span>
+            <p className="font-sans text-xs animate-pulse" style={{ color: "#ff8c00" }}>
+              {"Inicializando sistema..."}
             </p>
           </div>
         </main>
